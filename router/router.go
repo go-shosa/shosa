@@ -7,12 +7,14 @@ import (
 	"github.com/labstack/echo"
 )
 
+// Route defines the route for method and path with matching handler.
 type Route struct {
 	Method  string
 	Routing string
 	Func    echo.HandlerFunc
 }
 
+// SetRoutes registers routes for methods and paths with matching handlers.
 func SetRoutes(e *echo.Echo, routes []Route) (err error) {
 	for _, rt := range routes {
 		switch strings.ToUpper(rt.Method) {
@@ -25,7 +27,7 @@ func SetRoutes(e *echo.Echo, routes []Route) (err error) {
 		case "PATCH":
 			e.PATCH(rt.Routing, rt.Func)
 		case "DELETE":
-			e.Delete(rt.Routing, rt.Func)
+			e.DELETE(rt.Routing, rt.Func)
 		case "OPTIONS":
 			e.OPTIONS(rt.Routing, rt.Func)
 		case "HEAD":
