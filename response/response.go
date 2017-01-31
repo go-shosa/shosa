@@ -6,12 +6,14 @@ import (
 	"github.com/labstack/echo"
 )
 
+// Response is the structure for http response.
 type Response struct {
 	Context    echo.Context
 	HTTPStatus int
 	Item       interface{}
 }
 
+// New creates a new Response
 func New(c echo.Context, status int, i interface{}) *Response {
 	return &Response{
 		Context:    c,
@@ -52,14 +54,17 @@ func (r *Response) String() (err error) {
 	return String(r.Context, r.HTTPStatus, r.Item)
 }
 
+// JSON sets Respose.Item is encoded json in echo.Context and returns error when happend some exception.
 func JSON(c echo.Context, status int, i interface{}) (err error) {
 	return c.JSON(status, i)
 }
 
+// XML sets Respose.Item is encoded XML in echo.Context and returns error when happend some exception.
 func XML(c echo.Context, status int, i interface{}) (err error) {
 	return c.XML(status, i)
 }
 
+// String sets Respose.Item in echo.Context and returns error when happend some exception.
 func String(c echo.Context, status int, i interface{}) (err error) {
 	var str string
 	switch i.(type) {

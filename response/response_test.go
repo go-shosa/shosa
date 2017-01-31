@@ -3,10 +3,10 @@ package response
 import (
 	"encoding/xml"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/labstack/echo"
-	"github.com/labstack/echo/test"
 )
 
 type (
@@ -17,17 +17,16 @@ type (
 )
 
 const (
-	userJSON       = `{"id":1,"name":"Jon Snow"}`
-	userXML        = `<user><id>1</id><name>Jon Snow</name></user>`
-	userForm       = `id=1&name=Jon Snow`
-	invalidContent = "invalid content"
+	userJSON = `{"id":1,"name":"Jon Snow"}`
+	userXML  = `<user><id>1</id><name>Jon Snow</name></user>`
 )
 
 func TestNew(t *testing.T) {
 	e := echo.New()
-	req := test.NewRequest("GET", "/", nil)
-	rec := test.NewResponseRecorder()
+	req := new(http.Request)
+	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
+	c.SetPath("/")
 
 	status := 200
 	item := "hello, human!!"
@@ -48,23 +47,24 @@ func TestNew(t *testing.T) {
 
 func TestJSON(t *testing.T) {
 	e := echo.New()
-	req := test.NewRequest("GET", "/", nil)
-	rec := test.NewResponseRecorder()
+	req := new(http.Request)
+	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
+	c.SetPath("/")
 
 	resp := New(c, http.StatusOK, user{1, "Jon Snow"})
 	err := resp.JSON()
 	if err != nil {
 		t.Fatalf("Recieved unexpected error :\n%+v", err)
 	}
-	if http.StatusOK != rec.Status() {
-		t.Errorf("Response http status is expected %d, but actual %d", http.StatusOK, rec.Status())
+	if http.StatusOK != rec.Code {
+		t.Errorf("Response http status is expected %d, but actual %d", http.StatusOK, rec.Code)
 	}
 	if echo.MIMEApplicationJSONCharsetUTF8 != rec.Header().Get(echo.HeaderContentType) {
-		t.Errorf("Response header is expected %d, but actual %d", echo.MIMEApplicationJSONCharsetUTF8, rec.Header().Get(echo.HeaderContentType))
+		t.Errorf("Response header is expected %s, but actual %s", echo.MIMEApplicationJSONCharsetUTF8, rec.Header().Get(echo.HeaderContentType))
 	}
 	if userJSON != rec.Body.String() {
-		t.Errorf("Response body is expected %d, but actual %d", userJSON, rec.Body.String())
+		t.Errorf("Response body is expected %s, but actual %s", userJSON, rec.Body.String())
 	}
 }
 
@@ -72,44 +72,46 @@ func TestXML(t *testing.T) {
 	actual := xml.Header + userXML
 
 	e := echo.New()
-	req := test.NewRequest("GET", "/", nil)
-	rec := test.NewResponseRecorder()
+	req := new(http.Request)
+	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
+	c.SetPath("/")
 
 	resp := New(c, http.StatusOK, user{1, "Jon Snow"})
 	err := resp.XML()
 	if err != nil {
 		t.Fatalf("Recieved unexpected error :\n%+v", err)
 	}
-	if http.StatusOK != rec.Status() {
-		t.Errorf("Response http status is expected %d, but actual %d", http.StatusOK, rec.Status())
+	if http.StatusOK != rec.Code {
+		t.Errorf("Response http status is expected %d, but actual %d", http.StatusOK, rec.Code)
 	}
 	if echo.MIMEApplicationXMLCharsetUTF8 != rec.Header().Get(echo.HeaderContentType) {
-		t.Errorf("Response header is expected %d, but actual %d", echo.MIMEApplicationXMLCharsetUTF8, rec.Header().Get(echo.HeaderContentType))
+		t.Errorf("Response header is expected %s, but actual %s", echo.MIMEApplicationXMLCharsetUTF8, rec.Header().Get(echo.HeaderContentType))
 	}
 	if actual != rec.Body.String() {
-		t.Errorf("Response body is expected %d, but actual %d", actual, rec.Body.String())
+		t.Errorf("Response body is expected %s, but actual %s", actual, rec.Body.String())
 	}
 }
 
 func TestString(t *testing.T) {
 	e := echo.New()
-	req := test.NewRequest("GET", "/", nil)
-	rec := test.NewResponseRecorder()
+	req := new(http.Request)
+	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
+	c.SetPath("/")
 
 	resp := New(c, http.StatusOK, "Hello, World!")
 	err := resp.String()
 	if err != nil {
 		t.Fatalf("Recieved unexpected error :\n%+v", err)
 	}
-	if http.StatusOK != rec.Status() {
-		t.Errorf("Response http status is expected %d, but actual %d", http.StatusOK, rec.Status())
+	if http.StatusOK != rec.Code {
+		t.Errorf("Response http status is expected %d, but actual %d", http.StatusOK, rec.Code)
 	}
 	if echo.MIMETextPlainCharsetUTF8 != rec.Header().Get(echo.HeaderContentType) {
-		t.Errorf("Response header is expected %d, but actual %d", echo.MIMEApplicationJSONCharsetUTF8, rec.Header().Get(echo.HeaderContentType))
+		t.Errorf("Response header is expected %s, but actual %s", echo.MIMEApplicationJSONCharsetUTF8, rec.Header().Get(echo.HeaderContentType))
 	}
 	if "Hello, World!" != rec.Body.String() {
-		t.Errorf("Response body is expected %d, but actual %d", "Hello, World!", rec.Body.String())
+		t.Errorf("Response body is expected %s, but actual %s", "Hello, World!", rec.Body.String())
 	}
 }
